@@ -1,0 +1,46 @@
+Authors: Aundrez Pusey
+Date Created: July 07,2025
+Course: ITT103
+GitHub Public URL to Code: [https://github.com/yourusername/hospital-management-system]
+
+==================================================
+            Hospital Management System
+==================================================
+
+ PURPOSE OF THE PROGRAM:
+--------------------------
+This program is a **console-based Hospital Management System** written in Python. It allows hospital staff to:
+- Register patients
+- Add doctors and manage their available schedules
+- Book appointments between patients and doctors
+- View scheduled appointments
+- Cancel existing appointments
+- Generate bills for appointments
+
+It uses object-oriented programming concepts such as classes, inheritance, and encapsulation.
+
+ HOW TO RUN:
+---------------
+1. Open the file using a Python IDE or text editor (e.g., VS Code, IDLE).
+2. Make sure Python 3 is installed on your machine.
+3. Run the script by executing:
+4. The main menu will appear in the terminal/command prompt. Follow the prompts to use the system.
+
+ REQUIRED MODIFICATIONS:
+---------------------------
+If you'd like to improve or extend this system, consider the following:
+- Add a file/database system for saving patients, doctors, and appointments between sessions.
+- Implement user authentication for admin login.
+- Add GUI support using Tkinter or PyQt.
+- Support rescheduling appointments.
+
+ ASSUMPTIONS AND LIMITATIONS:
+-------------------------------
+- All data is stored in memory (no database); data is lost when the program exits.
+- Patient and Doctor IDs are automatically assigned (e.g., P001, D001).
+- Time slots must be entered manually and exactly match the format `YYYY-MM-DD HH:MM`.
+- Billing is fixed at JMD$5000 per doctor visit, plus optional additional charges.
+- Cancelled appointments do not yet restore the doctor's time slot automatically.
+- Limited error handling for date/time parsing and missing input data.
+
+Thank you for reviewing this project!
