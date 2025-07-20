@@ -1,7 +1,7 @@
 Authors: Aundrez Pusey
 Date Created: July 07,2025
 Course: ITT103
-GitHub Public URL to Code: [https://github.com/yourusername/hospital-management-system]
+GitHub Public URL to Code: https://github.com/apusey2025/My-Projects/blob/main/Aundrez.Pusey-POS_Program-ITT103-SP2025.py
 
 ==================================================
             Hospital Management System
