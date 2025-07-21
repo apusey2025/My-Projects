@@ -28,11 +28,15 @@ It uses object-oriented programming concepts such as classes, inheritance, and e
 
  REQUIRED MODIFICATIONS:
 ---------------------------
-If you'd like to improve or extend this system, consider the following:
 - Add a file/database system for saving patients, doctors, and appointments between sessions.
 - Implement user authentication for admin login.
-- Add GUI support using Tkinter or PyQt.
 - Support rescheduling appointments.
+
+MINIMUM REQUIREMENTS:
+-----------------------------
+- 8GB RAM
+- 512 GB SSD
+- i5 1st Gen / i7 Processor
 
  ASSUMPTIONS AND LIMITATIONS:
 -------------------------------
