@@ -1,33 +1,35 @@
 # === Defining Base Class ===
 
 class Person:
-    def __init__ (self, name, age, gender):
+    def __init__(self, name, age, gender):
+        # Initialize basic personal information
         self.name = name
         self.age = age
         self.gender = gender
 
-    def display_info (self):
-        # Displays general person info
-        print(f"Name: {self.name}, Age: {self.age},Gender: {self.gender}")
+    def display_info(self):
+        # Print out person's basic information
+        print(f"Name: {self.name}, Age: {self.age}, Gender: {self.gender}")
+
 
 # === Patient Subclass ===
 
 class Patient(Person):
-    patient_num = 1  # Class variable for auto-incrementing patient ID
+    patient_num = 1  # Class-level counter to generate unique patient IDs
 
-    def __init__ (self, name, age, gender):
+    def __init__(self, name, age, gender):
         super().__init__(name, age, gender)
-        self.patient_id = f"P{Patient.patient_num:03}"  # e.g., P001
-        self.appointment_list = []  # List to store appointments
-        Patient.patient_num += 1  # Increment for the next patient
+        self.patient_id = f"P{Patient.patient_num:03}"  # Format: P001, P002...
+        self.appointment_list = []  # List to hold patient’s appointments
+        Patient.patient_num += 1
 
     def view_p_profile(self):
-        # Displays patient details
+        # Display patient profile
         self.display_info()
-        print(f"Patient ID: {self.patient_id}")  # FIXED from self.patient_num
+        print(f"Patient ID: {self.patient_id}")
 
     def view_appointments(self):
-        # Show appointments if any exist
+        # List all scheduled appointments
         if not self.appointment_list:
             print("No appointments scheduled.")
         else:
@@ -37,35 +39,40 @@ class Patient(Person):
                     f" - {app.appointment_id}: Dr. {app.doctor.name} on {app.date} at {app.time} | Status: {app.status}"
                 )
 
+
 # === Doctor Subclass ===
 
 class Doctor(Person):
-    doctor_num = 1  # Class variable for auto-incrementing doctor ID
+    doctor_num = 1  # Class-level counter for doctor IDs
 
     def __init__(self, name, age, gender, speciality, schedule):
         super().__init__(name, age, gender)
-        self.doctor_id = f"D{Doctor.doctor_num:03}"  # e.g., D001
+        self.doctor_id = f"D{Doctor.doctor_num:03}"  # Format: D001, D002...
         self.speciality = speciality
-        self.schedule = schedule  # List of available (date, time) slots
+        self.schedule = schedule  # List of (date, time) tuples
         Doctor.doctor_num += 1
 
     def available(self, date, time):
-        # Check if the doctor is available at given date/time
+        # Check if a given (date, time) is in the doctor's schedule
         return (date, time) in self.schedule
 
     def view_schedule(self):
-        # Display the doctor’s schedule
-        print(f"Doctor {self.name}'s Schedule:")
+        # Print the doctor’s available appointment slots
+        print(f"\nDoctor {self.name}'s Schedule:")
+        if not self.schedule:
+            print(" - No available slots.")
         for slot in self.schedule:
-            print(f" - {slot}")
+            print(f" - {slot[0]} at {slot[1]}")
+
 
 # === Appointment Class ===
 
 class Appointment:
-    appointment_num = 1  # Class variable for auto-incrementing appointment ID
+    appointment_num = 1  # Class-level counter for appointment IDs
 
     def __init__(self, patient, doctor, date, time, status="Confirmed"):
-        self.appointment_id = f"A{Appointment.appointment_num:03}"  # e.g., A001
+        # Initialize appointment details
+        self.appointment_id = f"A{Appointment.appointment_num:03}"
         self.patient = patient
         self.doctor = doctor
         self.date = date
@@ -74,25 +81,30 @@ class Appointment:
         Appointment.appointment_num += 1
 
     def confirm(self):
+        # Confirm the appointment and display message
         self.status = "Confirmed"
         print(
             f"Appointment {self.appointment_id} confirmed for {self.patient.name} with Dr. {self.doctor.name} on {self.date} at {self.time}."
         )
 
     def cancel(self):
+        # Cancel the appointment and return slot to doctor
         self.status = "Cancelled"
+        self.doctor.schedule.append((self.date, self.time))  # Add slot back
         print(f"Appointment {self.appointment_id} has been cancelled.")
 
-# === Hospital Management System Main Class ===
+
+# === Hospital Management System ===
 
 class HosSystem:
-    def __init__ (self):
-        self.patients = {}      # Dictionary to store patients by ID
-        self.doctors = {}       # Dictionary to store doctors by ID
-        self.appointments = {}  # Dictionary to store appointments by ID
+    def __init__(self):
+        # Initialize storage for patients, doctors, and appointments
+        self.patients = {}
+        self.doctors = {}
+        self.appointments = {}
 
     def add_patient(self, name, age, gender):
-        # Add new patient after converting age to int
+        # Create and add new patient
         try:
             age = int(age)
             patient = Patient(name, age, gender)
@@ -102,36 +114,41 @@ class HosSystem:
             print("Invalid Criteria Entered")
 
     def add_doctor(self, name, age, gender, speciality, schedule):
-        # Add new doctor
+        # Create and add new doctor
         doctor = Doctor(name, age, gender, speciality, schedule)
         self.doctors[doctor.doctor_id] = doctor
         print(f"Doctor {doctor.doctor_id} successfully added.")
 
     def booking_appoint(self, patient_id, doctor_id, date, time):
-        # Book an appointment between patient and doctor
-        try:
+        # Book an appointment if doctor and patient exist and time is available
+        if patient_id not in self.patients:
+            print("Invalid Patient ID.")
+            return
+        if doctor_id not in self.doctors:
+            print("Invalid Doctor ID.")
+            return
+
+        doctor = self.doctors[doctor_id]
+
+        if doctor.available(date, time):
             patient = self.patients[patient_id]
-            doctor = self.doctors[doctor_id]
-            if doctor.available(date, time):
-                appointment = Appointment(patient, doctor, date, time)
-                patient.appointment_list.append(appointment)
-                self.appointments[appointment.appointment_id] = appointment
-                doctor.schedule.remove((date, time))  # Mark slot as booked
-                appointment.confirm()
-            else:
-                print("Sorry that slot is already taken")
-        except ValueError:
-            print("Invalid Patient or Doctor's ID.")
+            appointment = Appointment(patient, doctor, date, time)
+            patient.appointment_list.append(appointment)
+            self.appointments[appointment.appointment_id] = appointment
+            doctor.schedule.remove((date, time))  # Mark time slot as used
+            appointment.confirm()
+        else:
+            print("Sorry, that slot is already taken or unavailable.")
 
     def cancelling_booking(self, appointment_id):
-        # Cancel an existing appointment
+        # Cancel an appointment if it exists
         if appointment_id in self.appointments:
             self.appointments[appointment_id].cancel()
         else:
             print("Appointment was not found.")
 
     def generate_bill(self, appointment_id, add_service=0):
-        # Generate and display bill for appointment
+        # Show the total cost of an appointment
         try:
             appointment = self.appointments[appointment_id]
             total = 5000 + add_service
@@ -142,14 +159,14 @@ class HosSystem:
             print(f"Additional Services: JMD$ {add_service}")
             print(f"Total: JMD {total}")
             print("===================================")
-        except ValueError:
+        except KeyError:
             print("Invalid Appointment Number")
 
-# === Main Menu UI ===
+
+# === Command-Line Menu ===
 
 def main_menu(system):
     while True:
-        # Display menu options
         print("\n=========== Aundrez Hospital Management System ================")
         print("1. Register a Patient")
         print("2. Add a Doctor")
@@ -159,26 +176,25 @@ def main_menu(system):
         print("6. View your Bill Total")
         print("7. Exit")
 
-        # Get user's choice and strip whitespace
-        choice = input("Select an option to Proceed:").strip()
+        choice = input("Select an option to Proceed: ").strip()
 
-        # Register Patient
         if choice == '1':
-            name = input("Enter Patient's Name:").strip()
-            age = input("Enter Patient's Age:").strip()
-            gender = input("Enter Patient's Gender:").strip()
+            # Register a new patient
+            name = input("Enter Patient's Name: ").strip()
+            age = input("Enter Patient's Age: ").strip()
+            gender = input("Enter Patient's Gender: ").strip()
             system.add_patient(name, age, gender)
 
-        # Add Doctor
         elif choice == '2':
-            name = input("Enter Doctor's Name:").strip()
-            age = input("Enter Doctor's Age:").strip()
-            gender = input("Enter Doctor's Gender:").strip()
-            speciality = input("Enter Doctor's Speciality:").strip()
+            # Add a new doctor
+            name = input("Enter Doctor's Name: ").strip()
+            age = input("Enter Doctor's Age: ").strip()
+            gender = input("Enter Doctor's Gender: ").strip()
+            speciality = input("Enter Doctor's Speciality: ").strip()
             schedule = []
             print("Enter available slots (type 'done' to finish):")
             while True:
-                slot = input("Enter slot (format: YYYY-MM-DD HH:MM): ")
+                slot = input("Enter slot (format: YYYY-MM-DD HH:MM): ").strip()
                 if slot.lower() == 'done':
                     break
                 try:
@@ -191,8 +207,8 @@ def main_menu(system):
             else:
                 print("Doctor not added. No valid slots were provided.")
 
-        # Book Appointment
         elif choice == '3':
+            # Book an appointment
             print("\nAvailable Patient IDs:")
             for pa_id in system.patients:
                 print(f" - {pa_id}")
@@ -203,12 +219,16 @@ def main_menu(system):
 
             pa_id = input("Enter Patient ID (e.g. P001): ").strip()
             do_id = input("Enter Doctor ID (e.g. D001): ").strip()
+
+            if do_id in system.doctors:
+                system.doctors[do_id].view_schedule()
+
             date = input("Enter date (YYYY-MM-DD): ").strip()
             time = input("Enter time (HH:MM): ").strip()
             system.booking_appoint(pa_id, do_id, date, time)
 
-        # View Patient's Appointments
         elif choice == '4':
+            # View a patient's appointments
             print("\nAvailable Patient IDs:")
             for pid in system.patients:
                 print(f" - {pid}")
@@ -218,13 +238,13 @@ def main_menu(system):
             else:
                 print("Patient not found.")
 
-        # Cancel Appointment
         elif choice == '5':
+            # Cancel an appointment
             ap_id = input("Enter Appointment ID: ").strip()
             system.cancelling_booking(ap_id)
 
-        # Generate Bill
         elif choice == '6':
+            # Generate a bill
             ap_id = input("Enter Appointment ID: ").strip()
             try:
                 e_service = float(input("Enter additional service charges: ").strip())
@@ -232,14 +252,14 @@ def main_menu(system):
                 e_service = 0
             system.generate_bill(ap_id, e_service)
 
-        # Exit Program
         elif choice == '7':
+            # Exit the program
             print("Thank you for using HSM. Goodbye!")
             break
 
-        # Invalid input
         else:
             print("Invalid Selection. Please try again.")
+
 
 # === Main Program Entry Point ===
 
